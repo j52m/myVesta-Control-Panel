@@ -322,16 +322,18 @@ fi
 
 echo "Updating apt, please wait..."
 apt-get update > /dev/null 2>&1
+check_result $? "Unable to update apt-get."
 
 # Checking wget
 if [ ! -e '/usr/bin/wget' ]; then
     apt-get -y install wget > /dev/null 2>&1
-    check_result $? "Can't install wget"
+    check_result $? "Unable to install wget"
 fi
 
 # Check if gnupg2 is installed
 if [ $(dpkg-query -W -f='${Status}' gnupg2 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
     apt-get -y install gnupg2 > /dev/null 2>&1
+    check_result $? "Unable to install gnupg2"
 fi
 
 # Check if apparmor is installed
