@@ -19,6 +19,16 @@ release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
 codename="$(cat /etc/os-release |grep VERSION= |cut -f 2 -d \(|cut -f 1 -d \))"
 vestacp="$VESTA/install/$VERSION/$release"
 
+
+
+    ### New Variables
+        myVesta_tmpDIR="$(mktemp -d)"
+
+
+    ### New Functions
+
+
+
 if [ "$release" -eq 11 ]; then
     software="nginx apache2 apache2-utils
         libapache2-mod-fcgid php-fpm php
@@ -185,7 +195,7 @@ ensure_start() {
 #----------------------------------------------------------#
 
 # Creating temporary file
-tmpfile=$(mktemp -p /tmp)
+tmpfile=$(mktemp -p ${myVesta_tmpDIR})
 
 # Translating argument to --gnu-long-options
 for arg; do
@@ -349,14 +359,13 @@ wget -q "apt.myvestacp.com/deb_signing.key" -O /dev/null
 check_result $? "No access to Vesta repository"
 
 # Check installed packages
-tmpfile=$(mktemp -p /tmp)
+tmpfile=$(mktemp -p ${myVesta_tmpDIR})
 dpkg --get-selections > $tmpfile
 for pkg in exim4 mysql-server apache2 nginx vesta; do
     if [ ! -z "$(grep $pkg $tmpfile)" ]; then
         conflicts="$pkg $conflicts"
     fi
 done
-rm -f $tmpfile
 
 if [ ! -z "$conflicts" ] && [[ "$conflicts" = *"exim4"* ]]; then
     echo "=== Removing pre-installed exim4"
@@ -569,15 +578,15 @@ apt-get -y upgrade
 check_result $? 'apt-get upgrade failed'
 
 echo "=== Installing nginx repo"
-apt=/etc/apt/sources.list.d
-echo "deb http://nginx.org/packages/debian/ $codename nginx" > $apt/nginx.list
-wget http://nginx.org/keys/nginx_signing.key -O /tmp/nginx_signing.key
-apt-key add /tmp/nginx_signing.key
+apt_list="/etc/apt/sources.list.d"
+echo "deb http://nginx.org/packages/debian/ $codename nginx" > ${apt_list}/nginx.list
+wget http://nginx.org/keys/nginx_signing.key -O ${myVesta_tmpDIR}/nginx_signing.key
+apt-key add ${myVesta_tmpDIR}/nginx_signing.key
 
 echo "=== Installing myVesta repo"
-echo "deb http://$RHOST/$codename/ $codename vesta" > $apt/vesta.list
-wget $CHOST/deb_signing.key -O deb_signing.key
-apt-key add deb_signing.key
+echo "deb http://$RHOST/$codename/ $codename vesta" > ${apt_list}/vesta.list
+wget $CHOST/deb_signing.key -O ${myVesta_tmpDIR}/deb_signing.key
+apt-key add ${myVesta_tmpDIR}/deb_signing.key
 
 # Installing jessie backports
 if [ "$release" -eq 8 ]; then
@@ -1043,19 +1052,18 @@ $VESTA/bin/v-change-sys-hostname $servername 2>/dev/null
 
 echo "== Generating myVesta unsigned SSL certificate"
 $VESTA/bin/v-generate-ssl-cert $(hostname) $email 'US' 'California' \
-     'San Francisco' 'Vesta Control Panel' 'IT' > /tmp/vst.pem
+     'San Francisco' 'Vesta Control Panel' 'IT' > ${myVesta_tmpDIR}/vst.pem
 
 # Parsing certificate file
-crt_end=$(grep -n "END CERTIFICATE-" /tmp/vst.pem |cut -f 1 -d:)
-key_start=$(grep -n "BEGIN RSA" /tmp/vst.pem |cut -f 1 -d:)
-key_end=$(grep -n  "END RSA" /tmp/vst.pem |cut -f 1 -d:)
+crt_end=$(grep -n "END CERTIFICATE-" ${myVesta_tmpDIR}/vst.pem |cut -f 1 -d:)
+key_start=$(grep -n "BEGIN RSA" ${myVesta_tmpDIR}/vst.pem |cut -f 1 -d:)
+key_end=$(grep -n  "END RSA" ${myVesta_tmpDIR}/vst.pem |cut -f 1 -d:)
 
 cd $VESTA/ssl
-sed -n "1,${crt_end}p" /tmp/vst.pem > certificate.crt
-sed -n "$key_start,${key_end}p" /tmp/vst.pem > certificate.key
+sed -n "1,${crt_end}p" ${myVesta_tmpDIR}/vst.pem > certificate.crt
+sed -n "$key_start,${key_end}p" ${myVesta_tmpDIR}/vst.pem > certificate.key
 chown root:mail $VESTA/ssl/*
 chmod 660 $VESTA/ssl/*
-rm /tmp/vst.pem
 
 
 #----------------------------------------------------------#
