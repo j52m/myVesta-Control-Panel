@@ -624,12 +624,12 @@ check_result $? 'apt-get upgrade failed'
 echo "=== Installing nginx repo"
 aptSourceList="/etc/apt/sources.list.d"
 echo "deb http://nginx.org/packages/debian/ $codename nginx" > ${aptSourceList}/nginx.list
-wget http://nginx.org/keys/nginx_signing.key -O ${myVesta_TMP}/nginx_signing.key
+wget -q http://nginx.org/keys/nginx_signing.key -O ${myVesta_TMP}/nginx_signing.key
 apt-key add ${myVesta_TMP}/nginx_signing.key
 
 echo "=== Installing myVesta repo"
 echo "deb http://$RHOST/$codename/ $codename vesta" > ${aptSourceList}/vesta.list
-wget $CHOST/deb_signing.key -O ${myVesta_TMP}/deb_signing.key
+wget -q $CHOST/deb_signing.key -O ${myVesta_TMP}/deb_signing.key
 apt-key add ${myVesta_TMP}/deb_signing.key
 
 # Installing jessie backports
