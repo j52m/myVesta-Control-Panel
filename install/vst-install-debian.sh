@@ -118,7 +118,7 @@ help() {
 # Defining password-gen function
 gen_pass() {
     MATRIX='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-    LENGTH=32
+    LENGTH=14
     while [ ${n:=1} -le $LENGTH ]; do
         PASS="$PASS${MATRIX:$(($RANDOM%${#MATRIX})):1}"
         let n+=1
@@ -838,7 +838,7 @@ MAKE_CONFIG_FILE "Break Break Break RHOST CHOST VERSION VESTA memory arch os rel
 
 # Update system packages
 echo "=== Running: apt-get update"
-apt-get update
+sudo apt-get --quiet --assume-yes update
 
 echo "=== Disable daemon autostart /usr/share/doc/sysv-rc/README.policy-rc.d.gz"
 echo -e '#!/bin/sh \nexit 101' > /usr/sbin/policy-rc.d
@@ -858,7 +858,8 @@ fi
 
 echo "=== Installing all apt packages"
 # echo "apt-get -y install $software"
-apt-get -y install $software
+#apt-get -y install $software
+sudo apt-get --quiet --assume-yes install $software
 
 check_result $? "apt-get install failed"
 
@@ -1120,19 +1121,18 @@ $VESTA/bin/v-change-sys-hostname $servername 2>/dev/null
 
 echo "== Generating myVesta unsigned SSL certificate"
 $VESTA/bin/v-generate-ssl-cert $(hostname) $email 'US' 'California' \
-     'San Francisco' 'Vesta Control Panel' 'IT' > /tmp/vst.pem
+     'San Francisco' 'Vesta Control Panel' 'IT' > ${myVesta_TMP}/vst.pem
 
 # Parsing certificate file
-crt_end=$(grep -n "END CERTIFICATE-" /tmp/vst.pem |cut -f 1 -d:)
-key_start=$(grep -n "BEGIN RSA" /tmp/vst.pem |cut -f 1 -d:)
-key_end=$(grep -n  "END RSA" /tmp/vst.pem |cut -f 1 -d:)
+crt_end=$(grep -n "END CERTIFICATE-" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
+key_start=$(grep -n "BEGIN RSA" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
+key_end=$(grep -n  "END RSA" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
 
 cd $VESTA/ssl
-sed -n "1,${crt_end}p" /tmp/vst.pem > certificate.crt
-sed -n "$key_start,${key_end}p" /tmp/vst.pem > certificate.key
+sed -n "1,${crt_end}p" ${myVesta_TMP}/vst.pem > certificate.crt
+sed -n "$key_start,${key_end}p" ${myVesta_TMP}/vst.pem > certificate.key
 chown root:mail $VESTA/ssl/*
 chmod 660 $VESTA/ssl/*
-rm /tmp/vst.pem
 
 
 #----------------------------------------------------------#
