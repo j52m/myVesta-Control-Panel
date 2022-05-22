@@ -260,7 +260,7 @@ done
 eval set -- "$args"
 
 # Parsing arguments
-while getopts "a:n:w:v:j:k:m:g:d:x:z:c:t:i:b:r:o:q:l:y:s:e:p:u:1:f:h" Option; do
+while getopts "a:n:w:v:j:k:m:g:d:x:z:c:t:i:b:r:o:q:l:y:s:e:p:u:1:fh" Option; do
     case $Option in
         a) apache=$OPTARG ;;            # Apache
         n) nginx=$OPTARG ;;             # Nginx
@@ -383,9 +383,9 @@ check_result $? "No access to Vesta repository"
 
 # Check installed packages
 tmpFilePkgs="$(MAKE_TMP_FILE "Packages")" || { ERROR_MESSAGE "Failed to create TMP File. (${tmpFilePkgs})"; }  
-dpkg --get-selections > $tmpFilePkgs
+dpkg --get-selections > ${tmpFilePkgs}
 for pkg in exim4 mysql-server apache2 nginx vesta; do
-    if [ ! -z "$(grep $pkg $tmpFilePkgs)" ]; then
+    if [ ! -z "$(grep $pkg ${tmpFilePkgs})" ]; then
         conflicts="$pkg $conflicts"
     fi
 done
