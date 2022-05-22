@@ -380,13 +380,13 @@ apt-get update > /dev/null 2>&1
 
 # Checking wget
 if [ ! -e '/usr/bin/wget' ]; then
-    apt-get -y install wget > /dev/null 2>&1
+    sudo apt-get -qq -y install wget > /dev/null 2>&1
     check_result $? "Can't install wget"
 fi
 
 # Check if gnupg2 is installed
 if [ $(dpkg-query -W -f='${Status}' gnupg2 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-    apt-get -y install gnupg2 > /dev/null 2>&1
+    sudo apt-get -qq -y install gnupg2 > /dev/null 2>&1
     check_result $? "Can't install gnupg2"
 fi
 
@@ -413,7 +413,7 @@ done
 
 if [ ! -z "$conflicts" ] && [[ "$conflicts" = *"exim4"* ]]; then
     echo "=== Removing pre-installed exim4"
-    apt remove --purge -y exim4 exim4-base exim4-config
+    sudo apt-get -qq -y remove --purge exim4 exim4-base exim4-config
     rm -rf /etc/exim4
     conflicts=$(echo "$conflicts" | sed -e "s/exim4//")
     conflicts=$(echo "$conflicts" | sed -e "s/ //")
@@ -618,7 +618,7 @@ fi
 #----------------------------------------------------------#
 
 echo "=== Updating system (apt-get -y upgrade)"
-apt-get -y upgrade
+sudo apt-get -qq -y upgrade
 check_result $? 'apt-get upgrade failed'
 
 echo "=== Installing nginx repo"
@@ -838,7 +838,7 @@ MAKE_CONFIG_FILE "Break Break Break RHOST CHOST VERSION VESTA memory arch os rel
 
 # Update system packages
 echo "=== Running: apt-get update"
-sudo apt-get --quiet --assume-yes update
+sudo apt-get -qq update
 
 echo "=== Disable daemon autostart /usr/share/doc/sysv-rc/README.policy-rc.d.gz"
 echo -e '#!/bin/sh \nexit 101' > /usr/sbin/policy-rc.d
@@ -859,8 +859,7 @@ fi
 echo "=== Installing all apt packages"
 # echo "apt-get -y install $software"
 #apt-get -y install $software
-sudo apt-get --quiet --assume-yes install $software
-
+sudo apt-get -qq -y install $software
 check_result $? "apt-get install failed"
 
 if [ "$mysql8" = 'yes' ]; then
