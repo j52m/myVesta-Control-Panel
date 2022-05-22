@@ -834,7 +834,7 @@ fi
 
 MAKE_CONFIG_FILE "Break Break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
  
-software="$(echo "$HEAD" | tr -s " ")"
+software="$(echo "${software}" | tr -s " ")"
 MAKE_CONFIG_FILE "Break Break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
  
  
@@ -2010,7 +2010,7 @@ echo "================================================================"
 crontab -l | { cat; echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -exec rm {} \;"; } | crontab -
 
 
-    software="$(echo "$HEAD" | tr -s " ")"
+    software="$(echo "${software}" | tr -s " ")"
     MAKE_CONFIG_FILE "RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
  
 #----------------------------------------------------------#
