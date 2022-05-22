@@ -1130,7 +1130,7 @@ ${myVesta_BIN}/v-generate-ssl-cert "$(hostname)" "${email}" "US" "California" \
 ### TO BE REMOVED cd $VESTA/ssl
         ### Copy Certificate File
         sed -n "1,${crt_end}p" ${myVesta_TMP}/vst.pem > ${myVesta_DIR}/ssl/certificate.crt
-        sed -n "$key_start,${key_end}p" ${myVesta_TMP}/vst.pem > ${myVesta_DIR}/ssl/certificate.key
+        sed -n "${key_start},${key_end}p" ${myVesta_TMP}/vst.pem > ${myVesta_DIR}/ssl/certificate.key
         chown root:mail ${myVesta_DIR}/ssl/*
         chmod 660 ${myVesta_DIR}/ssl/*
 
