@@ -596,7 +596,6 @@ echo "Installation backup directory: $vst_backups"
 
 # Printing start message and sleeping for 5 seconds
 echo -e "\n\n\n\nInstallation will take about 15 minutes ...\n"
-sleep 5
 
 
 #----------------------------------------------------------#
@@ -833,9 +832,12 @@ fi
 #                     Install packages                     #
 #----------------------------------------------------------#
 
-MAKE_CONFIG_FILE "Break Break Break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor Break Break Break software Break Break Break" "N"
+MAKE_CONFIG_FILE "Break Break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
  
-
+software="$(echo "$HEAD" | tr -s " ")"
+MAKE_CONFIG_FILE "Break Break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
+ 
+ 
 # Update system packages
 echo "=== Running: apt-get update"
 sudo apt-get -qq update
@@ -2007,6 +2009,8 @@ echo "================================================================"
 # Removing old PHP sessions files
 crontab -l | { cat; echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -exec rm {} \;"; } | crontab -
 
+
+    software="$(echo "$HEAD" | tr -s " ")"
     MAKE_CONFIG_FILE "RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
  
 #----------------------------------------------------------#
