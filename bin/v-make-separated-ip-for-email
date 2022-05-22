@@ -40,7 +40,7 @@ fi
 #                    Verifications                         #
 #----------------------------------------------------------#
 
-check_args '2' "$#" 'MAIL_HOSTNAME MAIL_IP [NETMASK]'
+check_args '2' "$#" 'MAIL_HOSTNAME MAIL_IP [NETMASK] [INTERFACE]'
 is_domain_format_valid "$MAIL_HOSTNAME"
 is_ip_format_valid "$MAIL_IP"
 
