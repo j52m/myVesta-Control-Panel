@@ -1120,7 +1120,7 @@ echo "== Configuring server hostname: $servername"
 ${myVesta_BIN}/v-change-sys-hostname "${servername}" 2>/dev/null
 
 echo "== Generating myVesta unsigned SSL certificate"
-${myVesta_BIN}/v-generate-ssl-cert "$(hostname)" "${email}" "'US" "California" \
+${myVesta_BIN}/v-generate-ssl-cert "$(hostname)" "${email}" "US" "California" \
      "San Francisco" "Vesta Control Panel" "IT" > ${myVesta_TMP}/vst.pem
 
     ### Parsing Certificate File
