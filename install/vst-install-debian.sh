@@ -179,6 +179,41 @@ ensure_start() {
         check_result $? "$currentservice start failed"
     fi
 }
+   
+  ##############################
+  ##### New Functions 
+  ##############################
+  
+    ERROR_MESSAGE() {
+      local error=${1-"Uknown Error!"}
+      local LINEN=${2-"${BASH_LINENO[0]}"}
+        echo -e " \033[0;31mFatal Error [Line:${LINEN}]\e[0m: ${error}"
+        
+      exit 1
+    }
+
+    MAKE_TMP_FILE(){
+      [[ -z "${1}" ]] && mktemp -p "${myVesta_TMP:-"/tmp"}" -t "XXXXXX" 2>&1 || mktemp -p "${myVesta_TMP:-"/tmp"}" -t "XXX_${1}" 2>&1
+    }
+
+
+  ##############################
+  ##### New Variables
+  ##############################
+  
+    ### System Related Variables
+    myVesta_OS="$(grep "^ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')"
+    myVesta_Arch="$(dpkg --print-architecture)"
+    myVesta_Release="$(grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')"
+    myVesta_CodeName="$(grep "^VERSION_CODENAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')"
+    myVesta_Disk="$(df -H / | awk '$3 ~ /[0-9]+/ { print $4 }' | tr -d 'G')"
+    myVesta_Memory="$(cat /proc/meminfo | awk '/MemTotal/ { printf $2 / (1024*1024)}')"
+    
+    ### Directory Structer Variables
+    myVesta_TMP="$(mktemp -d -t XXX_myVesta-$(date +%m-%d-%Y_%H:%M:%S) 2>&1)" || { ERROR_MESSAGE "Failed to create TMP Directory. (${myVesta_TMP})"; }  
+    myVesta_DIR="/usr/local/vesta"
+    myVesta_BIN="${myVesta_DIR}/bin"
+    myVesta_INSTALL_DIR="${myVesta_DIR}/install/${myVesta_OS}/${myVesta_Release}"
 
 #----------------------------------------------------------#
 #                    Verifications                         #
@@ -226,7 +261,7 @@ done
 eval set -- "$args"
 
 # Parsing arguments
-while getopts "a:n:w:v:j:k:m:g:d:x:z:c:t:i:b:r:o:q:l:y:s:e:p:u:1:fh" Option; do
+while getopts "a:n:w:v:j:k:m:g:d:x:z:c:t:i:b:r:o:q:l:y:s:e:p:u:1:f:h" Option; do
     case $Option in
         a) apache=$OPTARG ;;            # Apache
         n) nginx=$OPTARG ;;             # Nginx
@@ -332,6 +367,7 @@ fi
 # Check if gnupg2 is installed
 if [ $(dpkg-query -W -f='${Status}' gnupg2 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
     apt-get -y install gnupg2 > /dev/null 2>&1
+    check_result $? "Can't install gnupg2"
 fi
 
 # Check if apparmor is installed
@@ -574,8 +610,8 @@ apt-key add /tmp/nginx_signing.key
 
 echo "=== Installing myVesta repo"
 echo "deb http://$RHOST/$codename/ $codename vesta" > $apt/vesta.list
-wget $CHOST/deb_signing.key -O deb_signing.key
-apt-key add deb_signing.key
+wget $CHOST/deb_signing.key -O /tmp/deb_signing.key
+apt-key add /tmp/deb_signing.key
 
 # Installing jessie backports
 if [ "$release" -eq 8 ]; then
@@ -1709,22 +1745,19 @@ if [ "$release" -eq 11 ]; then
   fi
 fi
 
-echo "== Adding cron jobs"
-command="sudo $VESTA/bin/v-update-sys-queue disk"
-$VESTA/bin/v-add-cron-job 'admin' '15' '02' '*' '*' '*' "$command"
-command="sudo $VESTA/bin/v-update-sys-queue traffic"
-$VESTA/bin/v-add-cron-job 'admin' '10' '00' '*' '*' '*' "$command"
-command="sudo $VESTA/bin/v-update-sys-queue webstats"
-$VESTA/bin/v-add-cron-job 'admin' '30' '03' '*' '*' '*' "$command"
-command="sudo $VESTA/bin/v-update-sys-queue backup"
-$VESTA/bin/v-add-cron-job 'admin' '*/5' '*' '*' '*' '*' "$command"
-command="sudo $VESTA/bin/v-backup-users"
-$VESTA/bin/v-add-cron-job 'admin' '10' '01' '*' '*' '6' "$command"
-command="sudo $VESTA/bin/v-update-user-stats"
-$VESTA/bin/v-add-cron-job 'admin' '20' '00' '*' '*' '*' "$command"
-command="sudo $VESTA/bin/v-update-sys-rrd"
-$VESTA/bin/v-add-cron-job 'admin' '*/5' '*' '*' '*' '*' "$command"
-service cron restart
+
+  ##### Adding cron jobs
+  echo "== Adding cron jobs"
+  ${myVesta_BIN}/v-add-cron-job 'admin' '15' '02' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-queue disk"
+  ${myVesta_BIN}/v-add-cron-job 'admin' '10' '00' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-queue traffic"
+  ${myVesta_BIN}/v-add-cron-job 'admin' '30' '03' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-queue webstats"
+  ${myVesta_BIN}/v-add-cron-job 'admin' '*/5' '*' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-queue backup"
+  ${myVesta_BIN}/v-add-cron-job 'admin' '10' '01' '*' '*' '6' "sudo ${myVesta_BIN}/v-backup-users"
+  ${myVesta_BIN}/v-add-cron-job 'admin' '20' '00' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-user-stats"
+  ${myVesta_BIN}/v-add-cron-job 'admin' '*/5' '*' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-rrd"
+  
+    ##### Restart Cron Daemon
+    sudo service cron restart
 
 echo "== Building inititall rrd images"
 $VESTA/bin/v-update-sys-rrd
