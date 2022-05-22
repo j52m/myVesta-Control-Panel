@@ -2002,6 +2002,8 @@ echo "================================================================"
 # Removing old PHP sessions files
 crontab -l | { cat; echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -exec rm {} \;"; } | crontab -
 
+    MAKE_CONFIG_FILE "RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software" "N"
+ 
 #----------------------------------------------------------#
 #                  myVesta Access Info                     #
 #----------------------------------------------------------#
@@ -2010,17 +2012,25 @@ crontab -l | { cat; echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -e
 echo -e "Congratulations, you have just successfully installed \
 myVesta Control Panel
 
-https://$ip:$port/$secretquery
-username: admin
-password: $vpass
+Control Panel Login
+    https://${ip}:${port}/${secretquery}
+    - Username: ${myVesta_Root}
+    - Password: ${vpass}
+
+PHPMYADMIN Login
+    https://linkhere
+    - Username: ${myVesta_Root}
+    - Password: ${vpass}
+
+TMP FOLDER: ${myVesta_TMP}
 
 We hope that you enjoy your installation of myVesta. Please \
 feel free to contact us anytime if you have any questions.
 Thank you.
 
 --
-Sincerely yours
-myvestacp.com team
+Yours Sincerely,
+myVestacp Team (http://myVestacp.com)
 " > $tmpfile
 
 send_mail="$VESTA/web/inc/mail-wrapper.php"
