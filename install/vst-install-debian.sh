@@ -1117,23 +1117,23 @@ echo "== Copying firewall rules"
 cp -rf $vestacp/firewall $VESTA/data/
 
 echo "== Configuring server hostname: $servername"
-$VESTA/bin/v-change-sys-hostname $servername 2>/dev/null
+${myVesta_BIN}/v-change-sys-hostname "${servername}" 2>/dev/null
 
 echo "== Generating myVesta unsigned SSL certificate"
-$VESTA/bin/v-generate-ssl-cert $(hostname) $email 'US' 'California' \
-     'San Francisco' 'Vesta Control Panel' 'IT' > ${myVesta_TMP}/vst.pem
+${myVesta_BIN}/v-generate-ssl-cert "$(hostname)" "${email}" "'US" "California" \
+     "San Francisco" "Vesta Control Panel" "IT" > ${myVesta_TMP}/vst.pem
 
-# Parsing certificate file
-crt_end=$(grep -n "END CERTIFICATE-" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
-key_start=$(grep -n "BEGIN RSA" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
-key_end=$(grep -n  "END RSA" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
+    ### Parsing Certificate File
+    crt_end=$(grep -n "END CERTIFICATE-" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
+    key_start=$(grep -n "BEGIN RSA" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
+    key_end=$(grep -n  "END RSA" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
 
-cd $VESTA/ssl
-sed -n "1,${crt_end}p" ${myVesta_TMP}/vst.pem > certificate.crt
-sed -n "$key_start,${key_end}p" ${myVesta_TMP}/vst.pem > certificate.key
-chown root:mail $VESTA/ssl/*
-chmod 660 $VESTA/ssl/*
-
+### TO BE REMOVED cd $VESTA/ssl
+        ### Copy Certificate File
+        sed -n "1,${crt_end}p" ${myVesta_TMP}/vst.pem > ${myVesta_DIR}/ssl/certificate.crt
+        sed -n "$key_start,${key_end}p" ${myVesta_TMP}/vst.pem > ${myVesta_DIR}/ssl/certificate.key
+        chown root:mail ${myVesta_DIR}/ssl/*
+        chmod 660 ${myVesta_DIR}/ssl/*
 
 #----------------------------------------------------------#
 #                     Configure Nginx                      #
