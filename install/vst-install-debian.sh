@@ -231,6 +231,8 @@ ensure_start() {
     myVesta_BIN="${myVesta_DIR}/bin"
     myVesta_INSTALL_DIR="${myVesta_DIR}/install/${myVesta_OS}/${myVesta_systemRelease}"
     
+    myVesta_User_Domain="j52m.com"
+    
     echo "${myVesta_TMP}"
     
     MAKE_CONFIG_FILE "Root Break Version Release Installed Break OS Arch systemRelease CodeName Break Disk Memory Break TMP DIR BIN INSTALL_DIR"
@@ -1099,12 +1101,12 @@ if [ "$release" -eq 11 ]; then
 fi
 
 echo "== Set nameservers address"
-sed -i "s/YOURHOSTNAME1/ns1.$servername/" /usr/local/vesta/data/packages/default.pkg
-sed -i "s/YOURHOSTNAME2/ns2.$servername/" /usr/local/vesta/data/packages/default.pkg
-sed -i "s/ns1.domain.tld/ns1.$servername/" /usr/local/vesta/data/packages/default.pkg
-sed -i "s/ns2.domain.tld/ns2.$servername/" /usr/local/vesta/data/packages/default.pkg
-sed -i "s/ns1.example.com/ns1.$servername/" /usr/local/vesta/data/packages/default.pkg
-sed -i "s/ns2.example.com/ns2.$servername/" /usr/local/vesta/data/packages/default.pkg
+sed -i "s/YOURHOSTNAME1/ns1.${myVesta_User_Domain}/" /usr/local/vesta/data/packages/default.pkg
+sed -i "s/YOURHOSTNAME2/ns2.${myVesta_User_Domain}/" /usr/local/vesta/data/packages/default.pkg
+sed -i "s/ns1.domain.tld/ns1.${myVesta_User_Domain}/" /usr/local/vesta/data/packages/default.pkg
+sed -i "s/ns2.domain.tld/ns2.${myVesta_User_Domain}/" /usr/local/vesta/data/packages/default.pkg
+sed -i "s/ns1.example.com/ns1.${myVesta_User_Domain}/" /usr/local/vesta/data/packages/default.pkg
+sed -i "s/ns2.example.com/ns2.${myVesta_User_Domain}/" /usr/local/vesta/data/packages/default.pkg
 
 echo "== Copying index.html to default documentroot"
 cp $VESTA/data/templates/web/skel/public_html/index.html /var/www/
@@ -1739,7 +1741,7 @@ fi
 
 if [ "$mysql" = 'yes' ] || [ "$mysql8" = 'yes' ]; then
     echo "== Configuring mysql host"
-    $VESTA/bin/v-add-database-host mysql localhost root $mpass
+    $VESTA/bin/v-add-database-host "mysql" "localhost" "root" "$mpass"
     # $VESTA/bin/v-add-database admin default default $(gen_pass) mysql
 fi
 
@@ -1749,15 +1751,23 @@ if [ "$postgresql" = 'yes' ]; then
     $VESTA/bin/v-add-database admin db db $(gen_pass) pgsql
 fi
 
-echo "== Adding default domain"
-$VESTA/bin/v-add-domain admin $servername
-check_result $? "can't create $servername domain"
+  echo "== Adding Main Domain and NS Records"
 
-if [ "$named" = 'yes' ]; then
-    echo "== Adding ns1 and ns2 A records"
-    /usr/local/vesta/bin/v-add-dns-record 'admin' "$servername" 'ns1' 'A' "$pub_ip"
-    /usr/local/vesta/bin/v-add-dns-record 'admin' "$servername" 'ns2' 'A' "$pub_ip"
-fi
+  ### Add Main Domain
+  ${myVesta_BIN}/v-add-domain "${myVesta_Root}" "${myVesta_User_Domain}"
+    check_result $? "Unable to create Domain: ${myVesta_User_Domain}."
+  
+    if [ "$named" = 'yes' ]; then
+      ### Add Domain ns1 and ns2 A Records
+      ${myVesta_BIN}/v-add-dns-record "${myVesta_Root}" "${myVesta_User_Domain}" "ns1" "A" "$pub_ip"
+        check_result $? "Unable to create ns1 A Record ns1.${myVesta_User_Domain} with Public IP: ${pub_ip}."
+      ${myVesta_BIN}/v-add-dns-record "${myVesta_Root}" "${myVesta_User_Domain}" "ns2" "A" "$pub_ip"
+        check_result $? "Unable to create ns2 A Record ns2.${myVesta_User_Domain} with Public IP: ${pub_ip}."
+    fi
+    
+  ### Add Server Domain
+  ${myVesta_BIN}/v-add-domain "${myVesta_Root}" "${servername}"
+    check_result $? "Unable to create Domain: ${servername}."
 
 if [ "$release" -eq 10 ]; then
   if [ -f "/etc/php/7.3/fpm/pool.d/$servername.conf" ]; then
@@ -1796,8 +1806,6 @@ fi
   ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "10" "01" "*" "*" "6" "sudo ${myVesta_BIN}/v-backup-users"
   ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "20" "00" "*" "*" "*" "sudo ${myVesta_BIN}/v-update-user-stats"
   ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "*/5" "*" "*" "*" "*" "sudo ${myVesta_BIN}/v-update-sys-rrd"
- 
-  echo "== Adding CronJobs for control panel auto updates"
   ${myVesta_BIN}/v-add-cron-vesta-autoupdate
   
     ##### Restart Cron Daemon
@@ -1834,11 +1842,6 @@ chown admin:admin $VESTA/data/sessions
     ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Chroot SFTP" "If you want to have SFTP accounts that will be used only to transfer files (and not to SSH), you can  <a href='/edit/server/?lead=sftp#module-sftp'>purchase</a> and enable <a href='http://vestacp.com/features/#sftpchroot'>SFTP Chroot</a>"
     ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Softaculous" "Softaculous is one of the best Auto Installers and it is finally <a href='/edit/server/?lead=sftp#module-softaculous'>available</a>"
     ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Release 0.9.8-26" "This release adds support for Lets Encrypt HTTP/2. For more information please read <a href='http://vestacp.com/history/#0.9.8-26'>release notes</a>"
-
-###  old to be removed after test install
-#echo "== Adding cronjob for autoupdates"
-#$VESTA/bin/v-add-cron-vesta-autoupdate
-
 
 #----------------------------------------------------------#
 #                   Custom work                            #
@@ -2005,7 +2008,7 @@ echo "================================================================"
 # Removing old PHP sessions files
 crontab -l | { cat; echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -exec rm {} \;"; } | crontab -
 
-    MAKE_CONFIG_FILE "RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software" "N"
+    MAKE_CONFIG_FILE "RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
  
 #----------------------------------------------------------#
 #                  myVesta Access Info                     #
@@ -2023,7 +2026,7 @@ Control Panel Login
 PHPMYADMIN Login
     https://linkhere
     - Username: ${myVesta_Root}
-    - Password: ${vpass}
+    - Password: ${mpass}
 
 TMP FOLDER: ${myVesta_TMP}
 
