@@ -195,15 +195,32 @@ ensure_start() {
       [[ -z "${1}" ]] && mktemp -p "${myVesta_TMP:-"/tmp"}" -t "XXXXXX" 2>&1 || mktemp -p "${myVesta_TMP:-"/tmp"}" -t "XXX_${1}" 2>&1
     }
 
+    MAKE_CONFIG_FILE(){
+      local items="${1}"
+      local itemsvar="${2}"
+      
+        if [[ ! -z "${1}" ]]; then
+          for Item in ${items[@]}; do
+            [[ "${Item}" = "Break" ]] && echo "" >> ${myVesta_TMP}/myVesta.conf && continue 
+            [[ "${2}" != "N" ]] && local Item="myVesta_${Item}"
+              echo "${Item}=\"${!Item}\"" >> ${myVesta_TMP}/myVesta.conf
+          done
+        fi
+    }
+
   ##############################
   ##### New Variables
   ##############################
     myVesta_Root="admin"
+    
+    myVesta_Version="0.9.8"
+    myVesta_Release=""
+    myVesta_Installed="$(date "+%d-%m-%Y %H:%M:%S")"
   
     ### System Related Variables
     myVesta_OS="$(grep "^ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')"
     myVesta_Arch="$(dpkg --print-architecture)"
-    myVesta_Release="$(grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')"
+    myVesta_systemRelease="$(grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')"
     myVesta_CodeName="$(grep "^VERSION_CODENAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')"
     myVesta_Disk="$(df -H / | awk '$3 ~ /[0-9]+/ { print $4 }' | tr -d 'G')"
     myVesta_Memory="$(cat /proc/meminfo | awk '/MemTotal/ { printf $2 / (1024*1024)}')"
@@ -212,7 +229,11 @@ ensure_start() {
     myVesta_TMP="$(mktemp -d -t XXX_myVesta-$(date +%m-%d-%Y_%H:%M:%S) 2>&1)" || { ERROR_MESSAGE "Failed to create TMP Directory. (${myVesta_TMP})"; }  
     myVesta_DIR="/usr/local/vesta"
     myVesta_BIN="${myVesta_DIR}/bin"
-    myVesta_INSTALL_DIR="${myVesta_DIR}/install/${myVesta_OS}/${myVesta_Release}"
+    myVesta_INSTALL_DIR="${myVesta_DIR}/install/${myVesta_OS}/${myVesta_systemRelease}"
+    
+    echo "${myVesta_TMP}"
+    
+    MAKE_CONFIG_FILE "Root Break Version Release Installed Break OS Arch systemRelease CodeName Break Disk Memory Break TMP DIR BIN INSTALL_DIR"
    
 #----------------------------------------------------------#
 #                    Verifications                         #
