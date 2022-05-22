@@ -831,7 +831,7 @@ fi
 #                     Install packages                     #
 #----------------------------------------------------------#
 
-MAKE_CONFIG_FILE "break break break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software break break break" "N"
+MAKE_CONFIG_FILE "Break Break Break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor Break Break Break software Break Break Break" "N"
  
 
 # Update system packages
