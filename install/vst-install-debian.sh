@@ -241,7 +241,6 @@ for arg; do
         --spamassassin)         args="${args}-t " ;;
         --iptables)             args="${args}-i " ;;
         --fail2ban)             args="${args}-b " ;;
-        --remi)                 args="${args}-r " ;;
         --softaculous)          args="${args}-o " ;;
         --quota)                args="${args}-q " ;;
         --lang)                 args="${args}-l " ;;
@@ -278,7 +277,6 @@ while getopts "a:n:w:v:j:k:m:g:d:x:z:c:t:i:b:r:o:q:l:y:s:e:p:u:1:fh" Option; do
         t) spamd=$OPTARG ;;             # SpamAssassin
         i) iptables=$OPTARG ;;          # Iptables
         b) fail2ban=$OPTARG ;;          # Fail2ban
-        r) remi=$OPTARG ;;              # Remi repo
         o) softaculous=$OPTARG ;;       # Softaculous plugin
         q) quota=$OPTARG ;;             # FS Quota
         l) lang=$OPTARG ;;              # Language
@@ -601,15 +599,15 @@ apt-get -y upgrade
 check_result $? 'apt-get upgrade failed'
 
 echo "=== Installing nginx repo"
-apt=/etc/apt/sources.list.d
-echo "deb http://nginx.org/packages/debian/ $codename nginx" > $apt/nginx.list
-wget http://nginx.org/keys/nginx_signing.key -O /tmp/nginx_signing.key
-apt-key add /tmp/nginx_signing.key
+aptSourceList="/etc/apt/sources.list.d"
+echo "deb http://nginx.org/packages/debian/ $codename nginx" > ${aptSourceList}/nginx.list
+wget http://nginx.org/keys/nginx_signing.key -O ${myVesta_TMP}/nginx_signing.key
+apt-key add ${myVesta_TMP}/nginx_signing.key
 
 echo "=== Installing myVesta repo"
-echo "deb http://$RHOST/$codename/ $codename vesta" > $apt/vesta.list
-wget $CHOST/deb_signing.key -O /tmp/deb_signing.key
-apt-key add /tmp/deb_signing.key
+echo "deb http://$RHOST/$codename/ $codename vesta" > ${aptSourceList}/vesta.list
+wget $CHOST/deb_signing.key -O ${myVesta_TMP}/deb_signing.key
+apt-key add ${myVesta_TMP}/deb_signing.key
 
 # Installing jessie backports
 if [ "$release" -eq 8 ]; then
