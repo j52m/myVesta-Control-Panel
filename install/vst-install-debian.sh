@@ -235,7 +235,7 @@ ensure_start() {
     
     echo "${myVesta_TMP}"
     
-    MAKE_CONFIG_FILE "Root Break Version Release Installed Break OS Arch systemRelease CodeName Break Disk Memory Break TMP DIR BIN INSTALL_DIR"
+    MAKE_CONFIG_FILE "Root Break Version Release Installed Break OS Arch systemRelease CodeName Break Disk Memory Break TMP DIR BIN INSTALL_DIR Break software"
    
 #----------------------------------------------------------#
 #                    Verifications                         #
@@ -832,9 +832,6 @@ fi
 #                     Install packages                     #
 #----------------------------------------------------------#
 
-MAKE_CONFIG_FILE "Break Break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
- 
-software="$(echo "${software}" | tr -s " ")"
 MAKE_CONFIG_FILE "Break Break RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
  
  
@@ -2009,8 +2006,6 @@ echo "================================================================"
 # Removing old PHP sessions files
 crontab -l | { cat; echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -exec rm {} \;"; } | crontab -
 
-
-    software="$(echo "${software}" | tr -s " ")"
     MAKE_CONFIG_FILE "RHOST CHOST VERSION VESTA memory arch os release codename vestacp nginx apache phpfpm vsftpd proftpd named mysql mysql8 postgresql mongodb exim dovecot clamd spamd iptables fail2ban softaculous quota interactive lang apparmor break break break software mpass vpass" "N"
  
 #----------------------------------------------------------#
