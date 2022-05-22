@@ -382,14 +382,13 @@ wget -q "apt.myvestacp.com/deb_signing.key" -O /dev/null
 check_result $? "No access to Vesta repository"
 
 # Check installed packages
-tmpfile=$(mktemp -p /tmp)
-dpkg --get-selections > $tmpfile
+tmpFilePkgs="$(MAKE_TMP_FILE "Packages")" || { ERROR_MESSAGE "Failed to create TMP File. (${tmpFilePkgs})"; }  
+dpkg --get-selections > $tmpFilePkgs
 for pkg in exim4 mysql-server apache2 nginx vesta; do
-    if [ ! -z "$(grep $pkg $tmpfile)" ]; then
+    if [ ! -z "$(grep $pkg $tmpFilePkgs)" ]; then
         conflicts="$pkg $conflicts"
     fi
 done
-rm -f $tmpfile
 
 if [ ! -z "$conflicts" ] && [[ "$conflicts" = *"exim4"* ]]; then
     echo "=== Removing pre-installed exim4"
