@@ -188,8 +188,7 @@ ensure_start() {
       local error=${1-"Uknown Error!"}
       local LINEN=${2-"${BASH_LINENO[0]}"}
         echo -e " \033[0;31mFatal Error [Line:${LINEN}]\e[0m: ${error}"
-        
-      exit 1
+        exit 1
     }
 
     MAKE_TMP_FILE(){
