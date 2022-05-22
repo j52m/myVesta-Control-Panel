@@ -195,10 +195,10 @@ ensure_start() {
       [[ -z "${1}" ]] && mktemp -p "${myVesta_TMP:-"/tmp"}" -t "XXXXXX" 2>&1 || mktemp -p "${myVesta_TMP:-"/tmp"}" -t "XXX_${1}" 2>&1
     }
 
-
   ##############################
   ##### New Variables
   ##############################
+    myVesta_Root="admin"
   
     ### System Related Variables
     myVesta_OS="$(grep "^ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')"
@@ -213,7 +213,7 @@ ensure_start() {
     myVesta_DIR="/usr/local/vesta"
     myVesta_BIN="${myVesta_DIR}/bin"
     myVesta_INSTALL_DIR="${myVesta_DIR}/install/${myVesta_OS}/${myVesta_Release}"
-
+   
 #----------------------------------------------------------#
 #                    Verifications                         #
 #----------------------------------------------------------#
@@ -889,10 +889,31 @@ fi
 #                     Configure VESTA                      #
 #----------------------------------------------------------#
 
-echo "== Installing sudo configuration"
-mkdir -p /etc/sudoers.d
-cp -f $vestacp/sudo/admin /etc/sudoers.d/
-chmod 440 /etc/sudoers.d/admin
+    ### Installing SUDO Configuration
+    echo "== Installing SUDO Configuration"
+    
+    ### Create sudoers.d Directory
+    [[ ! -d "/etc/sudoers.d" ]] && mkdir /etc/sudoers.d && chmod 750 /etc/sudoers.d
+      
+    ### Include sudoers.d Directory
+    [[ -z "$(grep "includedir /etc/sudoers.d" /etc/sudoers)" ]] && echo -e "\n#includedir /etc/sudoers.d" >> /etc/sudoers
+        
+    ### Remove admin if Exist
+    [[ -e "/etc/sudoers.d/${myVesta_Root}" ]] && rm -f /etc/sudoers.d/${myVesta_Root}
+        
+    ### Create Sudo for admin
+    printf '%s\n' \
+      "### Created by myVestaCP Installer" \
+      "Defaults env_keep=\"VESTA\"" \
+      "Defaults:${myVesta_Root} !syslog" \
+      "Defaults:${myVesta_Root} !requiretty" \
+      "Defaults:root !requiretty " \
+      "" \
+      "### Limit Sudo to myVestaCP Scripts" \
+      "${myVesta_Root}   ALL=NOPASSWD:/usr/local/vesta/bin/*" > /etc/sudoers.d/${myVesta_Root}
+              
+    ### Set Permissons
+    chmod 440 /etc/sudoers.d/${myVesta_Root}
 
 echo "== Configuring system env"
 echo "export VESTA='$VESTA'" > /etc/profile.d/vesta.sh
@@ -1742,15 +1763,18 @@ if [ "$release" -eq 11 ]; then
 fi
 
 
-  ##### Adding cron jobs
-  echo "== Adding cron jobs"
-  ${myVesta_BIN}/v-add-cron-job 'admin' '15' '02' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-queue disk"
-  ${myVesta_BIN}/v-add-cron-job 'admin' '10' '00' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-queue traffic"
-  ${myVesta_BIN}/v-add-cron-job 'admin' '30' '03' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-queue webstats"
-  ${myVesta_BIN}/v-add-cron-job 'admin' '*/5' '*' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-queue backup"
-  ${myVesta_BIN}/v-add-cron-job 'admin' '10' '01' '*' '*' '6' "sudo ${myVesta_BIN}/v-backup-users"
-  ${myVesta_BIN}/v-add-cron-job 'admin' '20' '00' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-user-stats"
-  ${myVesta_BIN}/v-add-cron-job 'admin' '*/5' '*' '*' '*' '*' "sudo ${myVesta_BIN}/v-update-sys-rrd"
+  ##### Adding CronJobs
+  echo "== Adding CronJobs"
+  ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "15" "02" "*" "*" "*" "sudo ${myVesta_BIN}/v-update-sys-queue disk"
+  ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "10" "00" "*" "*" "*" "sudo ${myVesta_BIN}/v-update-sys-queue traffic"
+  ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "30" "03" "*" "*" "*" "sudo ${myVesta_BIN}/v-update-sys-queue webstats"
+  ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "*/5" "*" "*" "*" "*" "sudo ${myVesta_BIN}/v-update-sys-queue backup"
+  ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "10" "01" "*" "*" "6" "sudo ${myVesta_BIN}/v-backup-users"
+  ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "20" "00" "*" "*" "*" "sudo ${myVesta_BIN}/v-update-user-stats"
+  ${myVesta_BIN}/v-add-cron-job "${myVesta_Root}" "*/5" "*" "*" "*" "*" "sudo ${myVesta_BIN}/v-update-sys-rrd"
+ 
+  echo "== Adding CronJobs for control panel auto updates"
+  ${myVesta_BIN}/v-add-cron-vesta-autoupdate
   
     ##### Restart Cron Daemon
     sudo service cron restart
@@ -1775,11 +1799,21 @@ ensure_startup $currentservice
 ensure_start $currentservice
 chown admin:admin $VESTA/data/sessions
 
-echo "== Adding notifications"
-$VESTA/upd/add_notifications.sh
+  ##### Adding Control Panel Notifications
+  echo "== Adding Notifications"
+  
+  ##### Remove Old Notifications
+  [[ -f "${myVesta_DIR}/data/user/${myVesta_Root}/notifications.conf" ]] && rm -f /usr/local/vesta/data/users/${myVesta_Root}/notifications.conf
+    
+    ##### Add Notifications
+    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "File Manager" "Browse, copy, edit, view, and retrieve all your web domain files using a fully featured <a href='http://vestacp.com/features/#filemanager'>File Manager</a>. Plugin is available for <a href='/edit/server/?lead=filemanager#module-filemanager'>purchase</a>." "filemanager"
+    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Chroot SFTP" "If you want to have SFTP accounts that will be used only to transfer files (and not to SSH), you can  <a href='/edit/server/?lead=sftp#module-sftp'>purchase</a> and enable <a href='http://vestacp.com/features/#sftpchroot'>SFTP Chroot</a>"
+    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Softaculous" "Softaculous is one of the best Auto Installers and it is finally <a href='/edit/server/?lead=sftp#module-softaculous'>available</a>"
+    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Release 0.9.8-26" "This release adds support for Lets Encrypt HTTP/2. For more information please read <a href='http://vestacp.com/history/#0.9.8-26'>release notes</a>"
 
-echo "== Adding cronjob for autoupdates"
-$VESTA/bin/v-add-cron-vesta-autoupdate
+###  old to be removed after test install
+#echo "== Adding cronjob for autoupdates"
+#$VESTA/bin/v-add-cron-vesta-autoupdate
 
 
 #----------------------------------------------------------#
