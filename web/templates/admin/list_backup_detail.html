@@ -1,15 +1,18 @@
+<style>
+input[type="checkbox"] {
+  display: block;
+  margin-top: 26px;
+}
+</style>
+<br /><br />
+<form action="/bulk/restore/" method="post" id="objects">
     <div class="l-center">
       <div class="l-sort clearfix noselect">
-        <a href="/schedule/restore/?backup=<?=htmlentities($_GET['backup'])?>" class="l-sort__create-btn restore" title="<?=__('Restore All')?>"></a>
+        <a href="/schedule/restore/?backup=<?=htmlentities($_GET['backup'])?>" class="l-sort__create-btn restore" style="bottom: 0" title="<?=__('Restore All')?>"></a>
         <div class="l-sort-toolbar clearfix">
           <table>
             <tr>
-              <td class="toggle-all">
-                <input id="toggle-all" type="checkbox" name="toggle-all" value="toggle-all" onchange="checkedAll('objects');">
-                <label for="toggle-all" class="check-label toggle-all"><?=__('toggle all')?></label>
-              </td>
               <td>
-                <form action="/bulk/restore/" method="post" id="objects">
                 <input type="hidden" name="token" value="<?=$_SESSION['token']?>" />
                 <input type="hidden" name="backup" value="<?=htmlentities($_GET['backup']); ?>">
                 <div style="display: none;">
@@ -31,7 +34,7 @@
     <!-- /.l-separator -->
 
 
-    <div class="l-center units">
+    <div class="l-center units" style="margin-top:240px">
     <div class="l-unit header">
       <div class="subtitle" style="color: black;"><?=__('Listing')?>  <?=htmlentities($_GET['backup'])?></div>
       <div class="subtitle"><?=__('First select what to restore')?>:</div>
@@ -45,11 +48,11 @@
             ++$i;
       ?>
 
-      <div class="l-unit">
+      <div>
         <div class="l-unit-toolbar clearfix">
           <div class="l-unit-toolbar__col l-unit-toolbar__col--left">
             <input id="check<?=$i?>" class="ch-toggle" type="checkbox" name="web[]" value="<?=$key?>">
-            <label for="check<?=$i++?>" class="check-label"></label>
+            
           </div>
           <!-- l-unit-toolbar__col -->
           <div class="l-unit-toolbar__col l-unit-toolbar__col--right">
@@ -96,11 +99,11 @@
           if (!empty($key)) {
       ?>
 
-      <div class="l-unit">
+      <div>
         <div class="l-unit-toolbar clearfix">
           <div class="l-unit-toolbar__col l-unit-toolbar__col--left">
             <input id="check2<?=$i?>" type="checkbox" name="mail[]" value="<?=$key?>">
-            <label for="check2<?=$i++?>" class="check-label"></label>
+            
           </div>
           <!-- l-unit-toolbar__col -->
           <div class="l-unit-toolbar__col l-unit-toolbar__col--right noselect">
@@ -144,11 +147,11 @@
           if (!empty($key)) {
       ?>
 
-      <div class="l-unit">
+      <div>
         <div class="l-unit-toolbar clearfix">
           <div class="l-unit-toolbar__col l-unit-toolbar__col--left">
             <input id="check3<?=$i?>" type="checkbox" name="dns[]" value="<?=$key?>">
-            <label for="check3<?=$i++?>" class="check-label"></label>
+            
           </div>
           <!-- l-unit-toolbar__col -->
           <div class="l-unit-toolbar__col l-unit-toolbar__col--right">
@@ -191,11 +194,11 @@
           if (!empty($key)) {
       ?>
 
-      <div class="l-unit">
+      <div>
         <div class="l-unit-toolbar clearfix">
           <div class="l-unit-toolbar__col l-unit-toolbar__col--left">
             <input id="check4<?=$i?>" type="checkbox" name="db[]" value="<?=$key?>">
-            <label for="check4<?=$i++?>" class="check-label"></label>
+            
           </div>
           <!-- l-unit-toolbar__col -->
           <div class="l-unit-toolbar__col l-unit-toolbar__col--right">
@@ -239,11 +242,11 @@
           if (!empty($key)) {
       ?>
 
-      <div class="l-unit">
+      <div>
         <div class="l-unit-toolbar clearfix">
           <div class="l-unit-toolbar__col l-unit-toolbar__col--left">
             <input id="check5<?=$i?>" type="checkbox" name="check" value="<?=$key?>">
-            <label for="check5<?=$i++?>" class="check-label"></label>
+            
           </div>
           <!-- l-unit-toolbar__col -->
           <div class="l-unit-toolbar__col l-unit-toolbar__col--right">
@@ -287,11 +290,11 @@
           if (!empty($key)) {
       ?>
 
-      <div class="l-unit">
+      <div>
         <div class="l-unit-toolbar clearfix">
           <div class="l-unit-toolbar__col l-unit-toolbar__col--left">
             <input id="check6<?=$i?>" type="checkbox" name="udir[]" value="<?=$key?>">
-            <label for="check6<?=$i++?>" class="check-label"></label>
+            
           </div>
           <!-- l-unit-toolbar__col -->
           <div class="l-unit-toolbar__col l-unit-toolbar__col--right">
@@ -326,11 +329,11 @@
       <!-- /.l-separator -->
       <? }} ?>
 
-      <div class="l-unit">
+      <div>
         <div class="l-unit-toolbar clearfix">
           <div class="l-unit-toolbar__col l-unit-toolbar__col--left">
             <input id="check7<?=$i?>" type="checkbox" name="cron" value="<?=$i?>">
-            <label for="check7<?=$i++?>" class="check-label"></label>
+            
           </div>
           <!-- l-unit-toolbar__col -->
           <div class="l-unit-toolbar__col l-unit-toolbar__col--right">
@@ -388,3 +391,4 @@
         </div>
       </div>
     </div>
+</form>
