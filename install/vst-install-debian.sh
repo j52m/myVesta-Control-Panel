@@ -1543,9 +1543,11 @@ if [ "$spamd" = 'yes' ]; then
     echo "=== Configure SpamAssassin"
     #update-rc.d spamassassin defaults
     sed -i "s/ENABLED=0/ENABLED=1/" /etc/default/spamassassin
+    wget -nv -O /etc/spamassassin/barracuda.cf http://c.myvestacp.com/tools/spamassassin/barracuda.cf
     currentservice='spamassassin'
     ensure_startup $currentservice
-    ensure_start $currentservice
+    # ensure_start $currentservice
+    systemctl restart spamassassin
 fi
 
 
@@ -1978,6 +1980,7 @@ touch /usr/local/vesta/data/upgrades/enable-tls-in-proftpd
 touch /usr/local/vesta/data/upgrades/enable_cookie_httponly
 touch /usr/local/vesta/data/upgrades/fix_exim_494_autoreply
 touch /usr/local/vesta/data/upgrades/freshclam_start
+touch /usr/local/vesta/data/upgrades/barracuda_rbl
 
 # Secret URL
 secretquery=''
