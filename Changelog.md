@@ -1,3 +1,9 @@
+Version 0.9.8-26-56 [28-May-2022]
+==================================================
+* Adding Barracuda RBL to SpamAssassin
+* Fixing insane HTML form bug in List backup items page
+* Script for easy adding second IP address for SMTP authenticated users only (v-make-separated-ip-for-email)
+
 Version 0.9.8-26-55 [26-Apr-2022]
 ==================================================
 * Support for MySQL 8
