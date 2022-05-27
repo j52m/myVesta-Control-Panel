@@ -31,6 +31,21 @@ if [ "$release" -eq 11 ]; then
     sed -i "s/yescrypt/sha512/g" /etc/pam.d/common-password
 fi
 
+# Adding Barracuda RBL to SpamAssassin
+if [ ! -f "/usr/local/vesta/data/upgrades/barracuda_rbl" ]; then
+    spamassassin_installed=$(/usr/local/vesta/bin/v-list-sys-services | grep -c 'spamassassin')
+    spamassassin_running=$(/usr/local/vesta/bin/v-list-sys-services | grep 'spamassassin' | grep -c 'running')
+    if [ $spamassassin_installed -eq 1 ]; then
+        echo "== Adding Barracuda RBL to SpamAssassin"
+        wget -nv -O /etc/spamassassin/barracuda.cf http://c.myvestacp.com/tools/spamassassin/barracuda.cf
+    fi
+    if [ $spamassassin_running -eq 1 ]; then
+        echo "== Restarting SpamAssassin"
+        systemctl restart spamassassin
+    fi
+    touch /usr/local/vesta/data/upgrades/barracuda_rbl
+fi
+
 # Checking if FreshClam is started after installation
 if [ ! -f "/usr/local/vesta/data/upgrades/freshclam_start" ]; then
     clamavup=$(/usr/local/vesta/bin/v-list-sys-services | grep 'clamav-daemon' | grep -c 'running')
