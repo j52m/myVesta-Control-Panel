@@ -1833,7 +1833,7 @@ chown admin:admin $VESTA/data/sessions
   echo "== Adding Notifications"
   
   ##### Remove Old Notifications
-  [[ -f "${myVesta_DIR}/data/user/${myVesta_Root}/notifications.conf" ]] && rm -f /usr/local/vesta/data/users/${myVesta_Root}/notifications.conf
+  [[ -f "${myVesta_DIR}/data/user/${myVesta_Root}/notifications.conf" ]] && rm -f ${myVesta_DIR}/data/users/${myVesta_Root}/notifications.conf
     
     ##### Add Notifications
     ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "File Manager" "Browse, copy, edit, view, and retrieve all your web domain files using a fully featured <a href='http://vestacp.com/features/#filemanager'>File Manager</a>. Plugin is available for <a href='/edit/server/?lead=filemanager#module-filemanager'>purchase</a>." "filemanager"
