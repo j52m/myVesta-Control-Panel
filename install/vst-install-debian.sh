@@ -1118,15 +1118,13 @@ echo "== Configuring server hostname: $servername"
 ${myVesta_BIN}/v-change-sys-hostname "${servername}" 2>/dev/null
 
 echo "== Generating myVesta unsigned SSL certificate"
-${myVesta_BIN}/v-generate-ssl-cert "$(hostname)" "${email}" "US" "California" \
-     "San Francisco" "Vesta Control Panel" "IT" > ${myVesta_TMP}/vst.pem
+${myVesta_BIN}/v-generate-ssl-cert "$(hostname)" "${email}" "US" "California" "San Francisco" "Vesta Control Panel" "IT" > ${myVesta_TMP}/vst.pem
 
     ### Parsing Certificate File
     crt_end=$(grep -n "END CERTIFICATE-" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
     key_start=$(grep -n "BEGIN RSA" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
     key_end=$(grep -n  "END RSA" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
 
-### TO BE REMOVED cd $VESTA/ssl
         ### Copy Certificate File
         sed -n "1,${crt_end}p" ${myVesta_TMP}/vst.pem > ${myVesta_DIR}/ssl/certificate.crt
         sed -n "${key_start},${key_end}p" ${myVesta_TMP}/vst.pem > ${myVesta_DIR}/ssl/certificate.key
@@ -1678,11 +1676,12 @@ if [ ! -z "$(grep ^admin: /etc/group)" ]; then
     groupdel admin > /dev/null 2>&1
 fi
 
-echo "== Adding vesta account"
-$VESTA/bin/v-add-user admin $vpass $email default System Administrator
-check_result $? "can't create admin user"
-$VESTA/bin/v-change-user-shell admin bash
-$VESTA/bin/v-change-user-language admin $lang
+    echo "== Creating Administrator Account"
+    ${myVesta_BIN}/v-add-user "${myVesta_Root}" "${vpass}" "${email}" "default" "System" "Administrator"
+        check_result $? "Unable to create Administrator User"
+        
+        ${myVesta_BIN}/v-change-user-shell "${myVesta_Root}" "bash"
+        ${myVesta_BIN}/v-change-user-language "${myVesta_Root}" "${lang}"
 
 if [ "$exim" = 'yes' ] && { [ "$mysql" = 'yes' ] || [ "$mysql8" = 'yes' ]; } then
     echo "== RoundCube permissions fix"
@@ -1693,7 +1692,7 @@ if [ "$exim" = 'yes' ] && { [ "$mysql" = 'yes' ] || [ "$mysql8" = 'yes' ]; } the
 fi
 
 # Vesta data sessions permissions
-chown admin:admin $VESTA/data/sessions
+chown ${myVesta_Root}:${myVesta_Root} $VESTA/data/sessions
 
 echo "== Configuring system ips (this can take a few minutes, relax)"
 $VESTA/bin/v-update-sys-ip
@@ -1739,7 +1738,7 @@ fi
 
 if [ "$mysql" = 'yes' ] || [ "$mysql8" = 'yes' ]; then
     echo "== Configuring mysql host"
-    $VESTA/bin/v-add-database-host "mysql" "localhost" "root" "$mpass"
+    $VESTA/bin/v-add-database-host "mysql" "localhost" "root" "${mpass}"
     # $VESTA/bin/v-add-database admin default default $(gen_pass) mysql
 fi
 
