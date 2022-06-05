@@ -5,8 +5,8 @@
 #----------------------------------------------------------#
 #                  Variables&Functions                     #
 #----------------------------------------------------------#
-export PATH=$PATH:/sbin
-export DEBIAN_FRONTEND=noninteractive
+export PATH="${PATH}:/sbin"
+export DEBIAN_FRONTEND="noninteractive"
 
 RHOST='apt.myvestacp.com'
 CHOST='c.myvestacp.com'
@@ -1111,14 +1111,32 @@ echo "== Copying index.html to default documentroot"
 cp $VESTA/data/templates/web/skel/public_html/index.html /var/www/
 sed -i 's/%domain%/It worked!/g' /var/www/index.html
 
-echo "== Copying firewall rules"
-cp -rf $vestacp/firewall $VESTA/data/
+echo "== Copying Firewall Ports"
+#cp -rf $vestacp/firewall $VESTA/data/
+cp -f ${myVesta_INSTALL_DIR}/firewall/ports.conf $VESTA/data/firewall/
+
+ ##### Adding Firewall Rules
+  echo "== Adding Firewall Rules"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "0" "ICMP" "PING" "1"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "8083" "TCP" "VESTA" "2"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "3306,5432" "TCP" "DB" "3"
+      ${myVesta_BIN}/v-suspend-firewall-rule "3"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "143,993" "TCP" "IMAP" "4"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "110,995" "TCP" "POP3" "5"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "25,465,587,2525" "TCP" "SMTP" "6"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "53" "TCP" "DNS" "7"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "53" "UDP" "DNS" "8"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "21,12000-12100" "TCP" "FTP" "9"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "80,443" "TCP" "WEB" "10"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "22" "TCP" "SSH" "11"
+
 
 echo "== Configuring server hostname: $servername"
 ${myVesta_BIN}/v-change-sys-hostname "${servername}" 2>/dev/null
 
-echo "== Generating myVesta unsigned SSL certificate"
-${myVesta_BIN}/v-generate-ssl-cert "$(hostname)" "${email}" "US" "California" "San Francisco" "Vesta Control Panel" "IT" > ${myVesta_TMP}/vst.pem
+  ##### Generating unsigned SSL certificate for myVesta
+  echo "== Generating unsigned SSL certificate for myVesta."
+  ${myVesta_BIN}/v-generate-ssl-cert "$(hostname)" "${email}" "US" "California" "San Francisco" "Vesta Control Panel" "IT" > ${myVesta_TMP}/vst.pem
 
     ### Parsing Certificate File
     crt_end=$(grep -n "END CERTIFICATE-" ${myVesta_TMP}/vst.pem |cut -f 1 -d:)
