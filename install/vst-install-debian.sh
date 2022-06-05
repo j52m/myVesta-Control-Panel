@@ -5,8 +5,14 @@
 #----------------------------------------------------------#
 #                  Variables&Functions                     #
 #----------------------------------------------------------#
-export PATH="${PATH}:/sbin"
+echo $PATH
+
+export PATH='$PATH:/sbin'
+#export PATH="${PATH}:/sbin"
 export DEBIAN_FRONTEND="noninteractive"
+
+echo $PATH
+exit
 
 RHOST='apt.myvestacp.com'
 CHOST='c.myvestacp.com'
@@ -211,13 +217,7 @@ ensure_start() {
   ##############################
   ##### New Variables
   ##############################
-    ### myVesta Variables
-    myVesta_Root="admin"
     
-    myVesta_Version="0.9.8"
-    myVesta_Release=""
-    myVesta_Installed="$(date "+%d-%m-%Y %H:%M:%S")"
-  
     ### System Related Variables
     myVesta_OS="$(grep "^ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')"
     myVesta_Arch="$(dpkg --print-architecture)"
@@ -225,8 +225,15 @@ ensure_start() {
     myVesta_CodeName="$(grep "^VERSION_CODENAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')"
     myVesta_Disk="$(df -H / | awk '$3 ~ /[0-9]+/ { print $4 }' | tr -d 'G')"
     myVesta_Memory="$(cat /proc/meminfo | awk '/MemTotal/ { printf $2 / (1024*1024)}')"
+  
+    ### myVesta Variables
+    myVesta_Root="admin"
     
-    ### Directory Structer Variables
+    myVesta_Version="0.9.8"
+    myVesta_Release=""
+    myVesta_Installed="$(date "+%d-%m-%Y %H:%M:%S")"
+
+    ### myVesta Directory Structer Variables
     myVesta_TMP="$(mktemp -d -t XXX_myVesta-$(date +%m-%d-%Y_%H:%M:%S) 2>&1)" || { ERROR_MESSAGE "Failed to create TMP Directory. (${myVesta_TMP})"; }  
     myVesta_DIR="/usr/local/vesta"
     myVesta_BIN="${myVesta_DIR}/bin"
@@ -942,10 +949,16 @@ fi
     ### Set Permissons
     chmod 440 /etc/sudoers.d/${myVesta_Root}
 
-echo "== Configuring system env"
-echo "export VESTA='$VESTA'" > /etc/profile.d/vesta.sh
-chmod 755 /etc/profile.d/vesta.sh
-source /etc/profile.d/vesta.sh
+
+
+    echo "== Configuring system env"
+    ### DOUBLE CHECK
+    #echo "export VESTA='$VESTA'" > /etc/profile.d/vesta.sh
+    echo "export VESTA=\"${VESTA}\"" > /etc/profile.d/vesta.sh
+    chmod 755 /etc/profile.d/vesta.sh
+    source /etc/profile.d/vesta.sh
+    
+    
 echo 'PATH=$PATH:'$VESTA'/bin' >> /root/.bash_profile
 echo 'export PATH' >> /root/.bash_profile
 source /root/.bash_profile
