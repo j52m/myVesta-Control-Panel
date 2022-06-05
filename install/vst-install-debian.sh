@@ -211,6 +211,7 @@ ensure_start() {
   ##############################
   ##### New Variables
   ##############################
+    ### myVesta Variables
     myVesta_Root="admin"
     
     myVesta_Version="0.9.8"
@@ -230,11 +231,12 @@ ensure_start() {
     myVesta_DIR="/usr/local/vesta"
     myVesta_BIN="${myVesta_DIR}/bin"
     myVesta_INSTALL_DIR="${myVesta_DIR}/install/${myVesta_OS}/${myVesta_systemRelease}"
-    
+
+    ### User Based Variables
     myVesta_User_Domain="j52m.com"
     
+    ### Testing to be removed
     echo "${myVesta_TMP}"
-    
     MAKE_CONFIG_FILE "Root Break Version Release Installed Break OS Arch systemRelease CodeName Break Disk Memory Break TMP DIR BIN INSTALL_DIR Break software"
    
 #----------------------------------------------------------#
