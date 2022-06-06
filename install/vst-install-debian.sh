@@ -5,14 +5,8 @@
 #----------------------------------------------------------#
 #                  Variables&Functions                     #
 #----------------------------------------------------------#
-echo $PATH
-
-export PATH='$PATH:/sbin'
-#export PATH="${PATH}:/sbin"
+export PATH="${PATH}:/sbin"
 export DEBIAN_FRONTEND="noninteractive"
-
-echo $PATH
-exit
 
 RHOST='apt.myvestacp.com'
 CHOST='c.myvestacp.com'
