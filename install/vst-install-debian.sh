@@ -1741,7 +1741,7 @@ pub_ip=$(curl -4 -s https://scripts.myvestacp.com/ip.php)
 
 if [ ! -z "$pub_ip" ] && [ "$pub_ip" != "$ip" ]; then
     echo "== NAT detected"
-    $VESTA/bin/v-change-sys-ip-nat $ip $pub_ip
+    $VESTA/bin/v-change-sys-ip-nat "${ip}" "${pub_ip}"
     ip=$pub_ip
 fi
 
@@ -1773,8 +1773,8 @@ fi
 
 if [ "$postgresql" = 'yes' ]; then
     echo "== Configuring pgsql host"
-    $VESTA/bin/v-add-database-host pgsql localhost postgres $ppass
-    $VESTA/bin/v-add-database admin db db $(gen_pass) pgsql
+    $VESTA/bin/v-add-database-host "pgsql" "localhost" "postgres" "${ppass}"
+    $VESTA/bin/v-add-database "admin" "db" "db" "$(gen_pass)" "pgsql"
 fi
 
   echo "== Adding Main Domain and NS Records"
@@ -1962,8 +1962,8 @@ if [ $make_ssl -eq 1 ]; then
     if [ "$www_host_ip" != "$pub_ip" ]; then
         if [ "$named" = 'yes' ]; then
             echo "=== Deleting www to server hostname"
-            $VESTA/bin/v-delete-web-domain-alias 'admin' "$servername" "$www_host" 'no'
-            $VESTA/bin/v-delete-dns-on-web-alias 'admin' "$servername" "$www_host" 'no'
+            $VESTA/bin/v-delete-web-domain-alias "admin" "${servername}" "${www_host}" "no"
+            $VESTA/bin/v-delete-dns-on-web-alias "admin" "${servername}" "${www_host}" "no"
         fi
         www_host=""
    fi
@@ -1974,8 +1974,8 @@ echo "Hostname $servername is pointing to $host_ip"
 
 if [ $make_ssl -eq 1 ]; then
     echo "=== Generating HOSTNAME SSL"
-    $VESTA/bin/v-add-letsencrypt-domain 'admin' "$servername" "$www_host" 'yes'
-    $VESTA/bin/v-update-host-certificate 'admin' "$servername"
+    $VESTA/bin/v-add-letsencrypt-domain "admin" "${servername}" "${www_host}" "yes"
+    $VESTA/bin/v-update-host-certificate "admin" "${servername}"
 else
     echo "We will not generate SSL because of this"
 fi
@@ -2019,7 +2019,7 @@ fi
 
 if [ "$port" != "8083" ]; then
     echo "=== Set Vesta port: $port"
-    $VESTA/bin/v-change-vesta-port $port
+    $VESTA/bin/v-change-vesta-port "${port}"
 fi
 
 echo "=== Set URL for phpmyadmin"
