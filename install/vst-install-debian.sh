@@ -650,75 +650,6 @@ fi
 #                         Backup                           #
 #----------------------------------------------------------#
 
-echo "=== Creating backup directory tree"
-mkdir -p $vst_backups
-cd $vst_backups
-mkdir nginx apache2 php php5 php5-fpm vsftpd proftpd bind exim4 dovecot clamd
-mkdir spamassassin mysql postgresql mongodb vesta
-
-echo "=== Backing up old configs"
-# Backing up Nginx configuration
-service nginx stop > /dev/null 2>&1
-cp -r /etc/nginx/* $vst_backups/nginx >/dev/null 2>&1
-
-# Backing up Apache configuration
-service apache2 stop > /dev/null 2>&1
-cp -r /etc/apache2/* $vst_backups/apache2 > /dev/null 2>&1
-rm -f /etc/apache2/conf.d/* > /dev/null 2>&1
-
-# Backing up PHP configuration
-cp /etc/php.ini $vst_backups/php > /dev/null 2>&1
-cp -r /etc/php.d  $vst_backups/php > /dev/null 2>&1
-
-# Backing up PHP configuration
-service php5-fpm stop >/dev/null 2>&1
-cp /etc/php5/* $vst_backups/php5 > /dev/null 2>&1
-rm -f /etc/php5/fpm/pool.d/* >/dev/null 2>&1
-
-# Backing up Bind configuration
-service bind9 stop > /dev/null 2>&1
-cp -r /etc/bind/* $vst_backups/bind > /dev/null 2>&1
-
-# Backing up Vsftpd configuration
-service vsftpd stop > /dev/null 2>&1
-cp /etc/vsftpd.conf $vst_backups/vsftpd > /dev/null 2>&1
-
-# Backing up ProFTPD configuration
-service proftpd stop > /dev/null 2>&1
-cp /etc/proftpd.conf $vst_backups/proftpd >/dev/null 2>&1
-
-# Backing up Exim configuration
-service exim4 stop > /dev/null 2>&1
-cp -r /etc/exim4/* $vst_backups/exim4 > /dev/null 2>&1
-
-# Backing up ClamAV configuration
-service clamav-daemon stop > /dev/null 2>&1
-cp -r /etc/clamav/* $vst_backups/clamav > /dev/null 2>&1
-
-# Backing up SpamAssassin configuration
-service spamassassin stop > /dev/null 2>&1
-cp -r /etc/spamassassin/* $vst_backups/spamassassin > /dev/null 2>&1
-
-# Backing up Dovecot configuration
-service dovecot stop > /dev/null 2>&1
-cp /etc/dovecot.conf $vst_backups/dovecot > /dev/null 2>&1
-cp -r /etc/dovecot/* $vst_backups/dovecot > /dev/null 2>&1
-
-# Backing up MySQL/MariaDB configuration and data
-service mysql stop > /dev/null 2>&1
-killall -9 mysqld > /dev/null 2>&1
-mv /var/lib/mysql $vst_backups/mysql/mysql_datadir > /dev/null 2>&1
-cp -r /etc/mysql/* $vst_backups/mysql > /dev/null 2>&1
-mv -f /root/.my.cnf $vst_backups/mysql > /dev/null 2>&1
-
-# Backup vesta
-service vesta stop > /dev/null 2>&1
-cp -r $VESTA/* $vst_backups/vesta > /dev/null 2>&1
-apt-get -y remove vesta vesta-nginx vesta-php > /dev/null 2>&1
-apt-get -y purge vesta vesta-nginx vesta-php > /dev/null 2>&1
-rm -rf $VESTA > /dev/null 2>&1
-
-
 #----------------------------------------------------------#
 #                     Package Excludes                     #
 #----------------------------------------------------------#
@@ -920,42 +851,43 @@ fi
     ### Installing SUDO Configuration
     echo "== Installing SUDO Configuration"
     
-    ### Create sudoers.d Directory
-    [[ ! -d "/etc/sudoers.d" ]] && mkdir /etc/sudoers.d && chmod 750 /etc/sudoers.d
-      
-    ### Include sudoers.d Directory
-    [[ -z "$(grep "includedir /etc/sudoers.d" /etc/sudoers)" ]] && echo -e "\n#includedir /etc/sudoers.d" >> /etc/sudoers
-        
-    ### Remove admin if Exist
-    [[ -e "/etc/sudoers.d/${myVesta_Root}" ]] && rm -f /etc/sudoers.d/${myVesta_Root}
-        
-    ### Create Sudo for admin
-    printf '%s\n' \
-      "### Created by myVestaCP Installer" \
-      "Defaults env_keep=\"VESTA\"" \
-      "Defaults:${myVesta_Root} !syslog" \
-      "Defaults:${myVesta_Root} !requiretty" \
-      "Defaults:root !requiretty " \
-      "" \
-      "### Limit Sudo to myVestaCP Scripts" \
-      "${myVesta_Root}   ALL=NOPASSWD:/usr/local/vesta/bin/*" > /etc/sudoers.d/${myVesta_Root}
-              
-    ### Set Permissons
-    chmod 440 /etc/sudoers.d/${myVesta_Root}
+        ### Create sudoers.d Directory
+        [[ ! -d "/etc/sudoers.d" ]] && mkdir /etc/sudoers.d && chmod 750 /etc/sudoers.d
+
+        ### Include sudoers.d Directory
+        [[ -z "$(grep "includedir /etc/sudoers.d" /etc/sudoers)" ]] && echo -e "\n#includedir /etc/sudoers.d" >> /etc/sudoers
+
+        ### Remove admin if Exist
+        [[ -e "/etc/sudoers.d/${myVesta_Root}" ]] && rm -f /etc/sudoers.d/${myVesta_Root}
+
+        ### Create Sudo for admin
+        printf '%s\n' \
+          "### Created by myVestaCP Installer" \
+          "Defaults env_keep=\"VESTA\"" \
+          "Defaults:${myVesta_Root} !syslog" \
+          "Defaults:${myVesta_Root} !requiretty" \
+          "Defaults:root !requiretty " \
+          "" \
+          "### Limit Sudo to myVestaCP Scripts" \
+          "${myVesta_Root}   ALL=NOPASSWD:/usr/local/vesta/bin/*" > /etc/sudoers.d/${myVesta_Root}
+
+        ### Set Permissons
+        chmod 440 /etc/sudoers.d/${myVesta_Root}
 
 
     echo "== Configuring system env"
-    ### DOUBLE CHECK
-    #echo "export VESTA='$VESTA'" > /etc/profile.d/vesta.sh
-    echo "export VESTA=\"${myVesta_DIR}\"" > /etc/profile.d/vesta.sh
-    chmod 755 /etc/profile.d/vesta.sh
-    source /etc/profile.d/vesta.sh
     
-    ### DOUBLE CHECK
-#echo 'PATH=$PATH:'$VESTA'/bin' >> /root/.bash_profile
-#echo 'export PATH' >> /root/.bash_profile
-    echo "export PATH=\"\$PATH:${myVesta_DIR}/bin\"" >> /root/.bash_profile
-    source /root/.bash_profile
+        ### DOUBLE CHECK
+        #echo "export VESTA='$VESTA'" > /etc/profile.d/vesta.sh
+        echo "export VESTA=\"${myVesta_DIR}\"" > /etc/profile.d/vesta.sh
+        chmod 755 /etc/profile.d/vesta.sh
+        source /etc/profile.d/vesta.sh
+
+        ### DOUBLE CHECK
+    #echo 'PATH=$PATH:'$VESTA'/bin' >> /root/.bash_profile
+    #echo 'export PATH' >> /root/.bash_profile
+        echo "export PATH=\"\$PATH:${myVesta_DIR}/bin\"" >> /root/.bash_profile
+        source /root/.bash_profile
 
 
 echo "== Copying logrotate for myVesta logs"
