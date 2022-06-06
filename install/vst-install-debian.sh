@@ -5,7 +5,7 @@
 #----------------------------------------------------------#
 #                  Variables&Functions                     #
 #----------------------------------------------------------#
-    export PATH="${PATH}:/sbin"
+    export PATH=$PATH:/sbin
     export DEBIAN_FRONTEND="noninteractive"
 
 RHOST='apt.myvestacp.com'
@@ -944,18 +944,19 @@ fi
     chmod 440 /etc/sudoers.d/${myVesta_Root}
 
 
-
     echo "== Configuring system env"
     ### DOUBLE CHECK
     #echo "export VESTA='$VESTA'" > /etc/profile.d/vesta.sh
-    echo "export VESTA=\"${VESTA}\"" > /etc/profile.d/vesta.sh
+    echo "export VESTA=\"${myVesta_DIR}\"" > /etc/profile.d/vesta.sh
     chmod 755 /etc/profile.d/vesta.sh
     source /etc/profile.d/vesta.sh
     
-    
-echo 'PATH=$PATH:'$VESTA'/bin' >> /root/.bash_profile
-echo 'export PATH' >> /root/.bash_profile
-source /root/.bash_profile
+    ### DOUBLE CHECK
+#echo 'PATH=$PATH:'$VESTA'/bin' >> /root/.bash_profile
+#echo 'export PATH' >> /root/.bash_profile
+    echo "export PATH=\"\$PATH:${myVesta_DIR}/bin\"" >> /root/.bash_profile
+    source /root/.bash_profile
+
 
 echo "== Copying logrotate for myVesta logs"
 cp -f $vestacp/logrotate/vesta /etc/logrotate.d/
@@ -1864,10 +1865,10 @@ chown admin:admin $VESTA/data/sessions
   [[ -f "${myVesta_DIR}/data/user/${myVesta_Root}/notifications.conf" ]] && rm -f ${myVesta_DIR}/data/users/${myVesta_Root}/notifications.conf
     
     ##### Add Notifications
-    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "File Manager" "Browse, copy, edit, view, and retrieve all your web domain files using a fully featured <a href='http://vestacp.com/features/#filemanager'>File Manager</a>. Plugin is available for <a href='/edit/server/?lead=filemanager#module-filemanager'>purchase</a>." "filemanager"
-    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Chroot SFTP" "If you want to have SFTP accounts that will be used only to transfer files (and not to SSH), you can  <a href='/edit/server/?lead=sftp#module-sftp'>purchase</a> and enable <a href='http://vestacp.com/features/#sftpchroot'>SFTP Chroot</a>"
-    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Softaculous" "Softaculous is one of the best Auto Installers and it is finally <a href='/edit/server/?lead=sftp#module-softaculous'>available</a>"
-    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Release 0.9.8-26" "This release adds support for Lets Encrypt HTTP/2. For more information please read <a href='http://vestacp.com/history/#0.9.8-26'>release notes</a>"
+    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "File Manager" "Browse, copy, edit, view, and retrieve all your web domain files using a fully featured <a href=\"http://vestacp.com/features/#filemanager\">File Manager</a>. Plugin is available for <a href=\"/edit/server/?lead=filemanager#module-filemanager\">purchase</a>." "filemanager"
+    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Chroot SFTP" "If you want to have SFTP accounts that will be used only to transfer files (and not to SSH), you can  <a href=\"/edit/server/?lead=sftp#module-sftp\">purchase</a> and enable <a href=\"http://vestacp.com/features/#sftpchroot\">SFTP Chroot</a>"
+    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Softaculous" "Softaculous is one of the best Auto Installers and it is finally <a href=\"/edit/server/?lead=sftp#module-softaculous\">available</a>"
+    ${myVesta_BIN}/v-add-user-notification "${myVesta_Root}" "Release 0.9.8-26" "This release adds support for Lets Encrypt HTTP/2. For more information please read <a href=\"http://vestacp.com/history/#0.9.8-26\">release notes</a>"
 
 #----------------------------------------------------------#
 #                   Custom work                            #
