@@ -5,8 +5,8 @@
 #----------------------------------------------------------#
 #                  Variables&Functions                     #
 #----------------------------------------------------------#
-export PATH="${PATH}:/sbin"
-export DEBIAN_FRONTEND="noninteractive"
+    export PATH="${PATH}:/sbin"
+    export DEBIAN_FRONTEND="noninteractive"
 
 RHOST='apt.myvestacp.com'
 CHOST='c.myvestacp.com'
