@@ -875,17 +875,12 @@ fi
         chmod 440 /etc/sudoers.d/${myVesta_Root}
 
 
-    echo "== Configuring system env"
+    echo "== Configuring System Environment for myVesta"
     
-        ### DOUBLE CHECK
-        #echo "export VESTA='$VESTA'" > /etc/profile.d/vesta.sh
         echo "export VESTA=\"${myVesta_DIR}\"" > /etc/profile.d/vesta.sh
         chmod 755 /etc/profile.d/vesta.sh
         source /etc/profile.d/vesta.sh
-
-        ### DOUBLE CHECK
-    #echo 'PATH=$PATH:'$VESTA'/bin' >> /root/.bash_profile
-    #echo 'export PATH' >> /root/.bash_profile
+        
         echo "export PATH=\"\$PATH:${myVesta_DIR}/bin\"" >> /root/.bash_profile
         source /root/.bash_profile
 
