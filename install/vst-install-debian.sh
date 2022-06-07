@@ -1060,7 +1060,7 @@ cp -f ${myVesta_INSTALL_DIR}/firewall/ports.conf $VESTA/data/firewall/
  ##### Adding Firewall Rules
   echo "== Adding Firewall Rules"
     ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "0" "ICMP" "PING" "1"
-    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "8083" "TCP" "VESTA" "2"
+    ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "${port}" "TCP" "VESTA" "2"
     ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "3306,5432" "TCP" "DB" "3"
       ${myVesta_BIN}/v-suspend-firewall-rule "3"
     ${myVesta_BIN}/v-add-firewall-rule "ACCEPT" "0.0.0.0/0" "143,993" "TCP" "IMAP" "4"
